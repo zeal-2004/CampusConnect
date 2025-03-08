@@ -1,58 +1,92 @@
+import { useNavigate } from "react-router-dom";
+import { useRef, useEffect } from "react";
 import "./Landing.css";
-import admin from "./images/admin.png";
-import student from "./images/student.png";
-import faculty from "./images/teacher.png";
+import Navbar from "./Navbar";
+import Carousel from "./Carousel";
 
-function Users() {
+function Landing() {
+  const navigate = useNavigate();
+  const homeRef = useRef(null);
+  const aboutRef = useRef(null);
+
+  const scrollToSection = (ref) => {
+    ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  useEffect(() => {
+    if (homeRef.current) {
+      homeRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, []);
+
   return (
-    <div className="p-5">
-      <div className="text-center">
-        <h1>CampusConnect</h1>
-        <p>Taking the stress out of fest!</p>
+    <>
+      <div className="landing-page" ref={homeRef}>
+        <Navbar
+          scrollToSection={scrollToSection}
+          homeRef={homeRef}
+          aboutRef={aboutRef}
+        ></Navbar>
+        <h1
+          class="text-center landing-page-text"
+          style={{
+            marginTop: "auto",
+            color: "#4B8BA3",
+            textShadow: "1.5px 1.5px black",
+          }}
+        >
+          Your Go-To Event Manager!
+        </h1>
+        {/*<h1>CampusConnect</h1>
+      <h4>A place to manage events smoothly!</h4>
+      <div class="navbar">
+        <ul>
+          <li>
+            <a onClick={() => scrollToSection(homeRef)}>Home</a>
+          </li>
+          <li>
+            <a onClick={() => scrollToSection(aboutRef)}>About Us</a>
+          </li>
+          <li>
+            <a onClick={() => scrollToSection(contactRef)}>Contact</a>
+          </li>
+        </ul>
       </div>
-      <div className="d-flex justify-content-evenly mt-5">
-        <div className="card p-1 m-1 w-auto ">
-          <img
-            src={admin}
-            className="card-img-top mx-auto d-block"
-            style={{ width: "13rem" }}
-            alt="Admin Login"
-          />
-          <div className="text-center">
-            <button type="button" className="btn mt-2">
-              Admin
-            </button>
-          </div>
-        </div>
-        <div className="card flex-shrink-1 m-1 w-auto">
-          <img
-            src={student}
-            className="card-img-top mx-auto d-block"
-            style={{ width: "11rem" }}
-            alt="Student Login"
-          />
-          <div className="text-center">
-            <button type="button" className="btn mt-2">
-              Student
-            </button>
-          </div>
-        </div>
-        <div className="card flex-shrink-1 m-1">
-          <img
-            src={faculty}
-            className="card-img-top mx-auto d-block rounded"
-            style={{ width: "10.5rem" }}
-            alt="Faculty Login"
-          />
-          <div className="text-center">
-            <button type="button" className="btn mt-2">
-              Faculty
-            </button>
-          </div>
-        </div>
+      <h2>Upload an image here and it should be side to side</h2>
+      <button onClick={() => navigate("/users")}>Get Started</button>
+      <div ref={homeRef} style={{ height: "100vh" }}>
+        <h2>Home Section</h2>
+        <p>This is the Home section content.</p>
       </div>
-    </div>
+      <div ref={aboutRef} style={{ height: "100vh" }}>
+        <h2>About Us Section</h2>
+        <p>This is the About Us section content.</p>
+      </div>
+      <div ref={contactRef} style={{ height: "100vh" }}>
+        <h2>Contact Section</h2>
+        <p>This is the Contact section content.</p>
+      </div>*/}
+      </div>
+      <div
+        ref={aboutRef}
+        style={{
+          height: "100vh",
+          backgroundColor: "#4B8BA3",
+          color: "whitesmoke",
+        }}
+        class="px-5 text-center"
+      >
+        <h1 className="mb-4 pt-2" style={{ textShadow: "1.5px 1.5px black" }}>
+          CampusConnect
+        </h1>
+        <h2 className="lead">
+          CampusConnect is a powerful tool designed to simplify event planning,
+          making it seamless and stress-free.
+        </h2>
+        <Carousel></Carousel>
+      </div>
+    </>
   );
 }
 
-export default Users;
+export default Landing;

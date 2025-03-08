@@ -1,0 +1,15 @@
+* {
+    margin-bottom: 0;
+}
+
+.role {
+    border: 2px solid transparent;
+    padding: 15px;
+    margin: 10px;
+    cursor: pointer;
+    transition: border 0.3s ease-in-out;
+  }
+  
+  .role.selected {
+    border: 2px solid green;
+  }
