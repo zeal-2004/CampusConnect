@@ -48,10 +48,41 @@
   box-shadow: 0 0 10px rgba(217, 65, 93, 0.3);
 }
 
+.student-pink {
+  background: rgba(217, 65, 93, 0.5); /* Light pink glass look */
+  border: 1px solid rgba(217, 65, 93, 0.4); 
+  border-radius: 15px;
+  backdrop-filter: blur(12px);
+  color: white;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 0 10px rgba(217, 65, 93, 0.3);
+}
+
+.student-pink:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 6px 10px rgba(217, 65, 93, 0.5); 
+  backdrop-filter: blur(16px);
+}
+
 .scrollable-events::-webkit-scrollbar {
   width: 6px;
 }
 .scrollable-events::-webkit-scrollbar-thumb {
   background-color: black;
   border-radius: 10px;
+  overflow-x: "hidden"
+}
+
+.student-event {
+  transition: transform 0.3s ease;
+}
+
+.student-event:hover {
+  transform: translateY(-4px);
+}
+
+.glass-card hr {
+  border: none;
+  border-top: 1px solid white;
+  margin: 0.5rem 0;
 }

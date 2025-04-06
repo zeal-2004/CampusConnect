@@ -25,11 +25,8 @@ function AuthForm({ selectedRole }) {
           role: selectedRole,
         });
         setMessage(response.data.message);
-        if (
-          response.data.message === "Login successful" &&
-          selectedRole === "faculty"
-        ) {
-          navigate("/faculty/dashboard", { state: { username } });
+        if (response.data.message === "Login successful") {
+          navigate(`/${selectedRole}/dashboard`, { state: { username } });
         }
       } else {
         // Signup logic

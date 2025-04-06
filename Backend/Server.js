@@ -108,9 +108,10 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/events", async (req, res) => {
-  const { name, description, date, time, venue, created_by } = req.body;
+  const { name, description, date, time, venue, created_by, max_headcount } =
+    req.body;
 
-  if (!name || !date || !time || !venue || !created_by) {
+  if (!name || !date || !time || !venue || !created_by || !max_headcount) {
     return res.status(400).json({ message: "Missing required fields." });
   }
 
@@ -125,10 +126,14 @@ app.post("/events", async (req, res) => {
 
   try {
     await db.execute(
-      `INSERT INTO events (name, description, event_date, venue, created_by)
-       VALUES (?, ?, ?, ?, ?)`,
-      [name, description, eventDateTime, venue, created_by]
+      `INSERT INTO events (name, description, event_date, venue, created_by, max_headcount)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [name, description, eventDateTime, venue, created_by, max_headcount]
     );
+
+    if (isNaN(max_headcount) || max_headcount <= 0) {
+      return res.status(400).json({ message: "Invalid max headcount." });
+    }
 
     res.status(200).json({ message: "Event created successfully!" });
   } catch (error) {
@@ -137,22 +142,146 @@ app.post("/events", async (req, res) => {
   }
 });
 
-app.get("/events/upcoming/:username", (req, res) => {
-  const { username } = req.params;
+// ✅ Place this BEFORE the route with :username or :id
+app.get("/events/upcoming/all", (req, res) => {
+  const sql = `SELECT * FROM events WHERE event_date > NOW() ORDER BY event_date ASC`;
 
-  const sql = `
-    SELECT * FROM events 
-    WHERE created_by = ? AND event_date > NOW() 
-    ORDER BY event_date ASC
-  `;
-
-  db.query(sql, [username], (err, results) => {
+  db.query(sql, (err, results) => {
     if (err) {
-      console.error("Error fetching events:", err);
+      console.error("DB error:", err);
       return res.status(500).json({ message: "Internal server error" });
     }
     res.json(results);
   });
+});
+
+app.get("/events/upcoming/:username", (req, res) => {
+  const { username } = req.params;
+
+  const sql = `
+    SELECT 
+      e.*, 
+      COUNT(r.event_id) AS registered_count 
+    FROM events e
+    LEFT JOIN registrations r ON e.id = r.event_id
+    WHERE e.created_by = ? AND e.event_date > NOW()
+    GROUP BY e.id
+    ORDER BY e.event_date ASC
+  `;
+
+  db.query(sql, [username], (err, results) => {
+    if (err) {
+      console.error("Error fetching faculty events:", err);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+    res.json(results);
+  });
+});
+
+app.post("/events/register", (req, res) => {
+  const { username, eventId } = req.body;
+
+  // First, check number of registrations
+  db.query(
+    "SELECT COUNT(*) AS count FROM registrations WHERE event_id = ?",
+    [eventId],
+    (err, countResult) => {
+      if (err) {
+        console.error("Count error:", err);
+        return res
+          .status(500)
+          .json({ message: "Error checking registration count" });
+      }
+
+      const currentCount = countResult[0].count;
+
+      // Now, get max count from event
+      db.query(
+        "SELECT max_headcount FROM events WHERE id = ?",
+        [eventId],
+        (err, eventResult) => {
+          if (err) {
+            console.error("Event error:", err);
+            return res
+              .status(500)
+              .json({ message: "Error fetching event details" });
+          }
+
+          if (eventResult.length === 0) {
+            return res.status(404).json({ message: "Event not found" });
+          }
+
+          const maxCount = eventResult[0].max_headcount;
+
+          if (currentCount >= maxCount) {
+            return res.status(400).json({ message: "Event is full" });
+          }
+
+          // Finally, insert registration
+          db.query(
+            "INSERT INTO registrations (student_username, event_id) VALUES (?, ?)",
+            [username, eventId],
+            (err, result) => {
+              if (err) {
+                console.error("Registration error:", err);
+                return res.status(500).json({ message: "Registration failed" });
+              }
+
+              return res
+                .status(200)
+                .json({ message: "Registration successful" });
+            }
+          );
+        }
+      );
+    }
+  );
+});
+
+// Get all events a student is registered for
+app.get("/registrations/:username", (req, res) => {
+  const { username } = req.params;
+
+  const sql = `
+    SELECT e.* FROM events e
+    JOIN registrations r ON e.id = r.event_id
+    WHERE r.student_username = ?
+  `;
+
+  db.query(sql, [username], (err, results) => {
+    if (err) {
+      console.error("Error fetching registrations:", err);
+      return res.status(500).json({ error: "Failed to fetch registrations" });
+    }
+
+    res.json(results);
+  });
+});
+
+// Cancel a registration
+app.delete("/registrations/:event_id/:username", (req, res) => {
+  const { event_id, username } = req.params;
+
+  db.query(
+    `DELETE FROM registrations WHERE event_id = ? AND student_username = ?`,
+    [event_id, username],
+    (err, result) => {
+      if (err) {
+        console.error("Failed to cancel registration:", err);
+        return res
+          .status(500)
+          .json({ message: "Error cancelling registration" });
+      }
+
+      if (result.affectedRows === 0) {
+        return res
+          .status(404)
+          .json({ message: "No registration found to delete." });
+      }
+
+      res.json({ message: "Registration cancelled." });
+    }
+  );
 });
 
 app.delete("/events/:id", async (req, res) => {
@@ -168,14 +297,14 @@ app.delete("/events/:id", async (req, res) => {
 
 app.put("/events/:id", async (req, res) => {
   const { id } = req.params;
-  const { name, description, date, time, venue } = req.body;
+  const { name, description, date, time, venue, max_headcount } = req.body;
 
   const eventDateTime = `${date} ${time}:00`;
 
   try {
     await db.execute(
-      `UPDATE events SET name = ?, description = ?, event_date = ?, venue = ? WHERE id = ?`,
-      [name, description, eventDateTime, venue, id]
+      `UPDATE events SET name = ?, description = ?, event_date = ?, venue = ?, max_headcount = ? WHERE id = ?`,
+      [name, description, eventDateTime, venue, max_headcount, id]
     );
     res.json({ message: "Event updated successfully" });
   } catch (err) {

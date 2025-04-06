@@ -15,6 +15,7 @@ function FacultyDashboard() {
   const [message, setMessage] = useState("");
   const [editingEvent, setEditingEvent] = useState(null);
   const [showAll, setShowAll] = useState(false);
+  const [maxHeadCount, setMaxHeadCount] = useState("");
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -58,6 +59,7 @@ function FacultyDashboard() {
           date,
           time,
           venue,
+          max_headcount: maxHeadCount,
         });
         setMessage("Event updated successfully!");
       } else {
@@ -68,6 +70,7 @@ function FacultyDashboard() {
           time,
           venue,
           created_by: username,
+          max_headcount: maxHeadCount,
         });
         setMessage(response.data.message);
       }
@@ -95,9 +98,16 @@ function FacultyDashboard() {
     setEventName(event.name);
     setDescription(event.description);
     setDate(event.event_date.split("T")[0]);
-    setTime(event.event_date.split("T")[1].substring(0, 5));
+    const localTime = new Date(event.event_date).toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+    setTime(localTime);
+
     setVenue(event.venue);
     setMessage("");
+    setMaxHeadCount(event.max_headcount || "");
   };
 
   const resetForm = () => {
@@ -107,6 +117,7 @@ function FacultyDashboard() {
     setTime("");
     setVenue("");
     setEditingEvent(null);
+    setMaxHeadCount("");
   };
 
   return (
@@ -190,6 +201,19 @@ function FacultyDashboard() {
                 />
               </div>
 
+              <div className="mb-3">
+                <label className="form-label text-white">Max Head Count</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={maxHeadCount}
+                  placeholder="eg: 100"
+                  min="1"
+                  onChange={(e) => setMaxHeadCount(e.target.value)}
+                  required
+                />
+              </div>
+
               <button
                 type="submit"
                 className="btn"
@@ -245,14 +269,16 @@ function FacultyDashboard() {
                 <div
                   className="d-flex flex-column gap-3 scrollable-events"
                   style={{
-                    maxHeight: "300px", // You can adjust this height
+                    maxHeight: "300px",
                     overflowY: "auto",
+                    widht: "100%",
                   }}
                 >
                   {(showAll ? events : events.slice(0, 3)).map((event) => (
                     <div
                       key={event.id}
                       className="event-card-pink p-3 rounded shadow-sm"
+                      style={{ width: "100%" }}
                     >
                       <div className="d-flex justify-content-between align-items-start flex-wrap">
                         <div style={{ maxWidth: "80%" }}>
@@ -269,6 +295,12 @@ function FacultyDashboard() {
                             })}
                             <br />
                             📍 {event.venue}
+                            <br />
+                            👥{" "}
+                            {event.registered_count !== undefined &&
+                            event.max_headcount
+                              ? `${event.registered_count} / ${event.max_headcount} students registered`
+                              : "Registration data unavailable"}
                           </div>
                         </div>
 
