@@ -1,0 +1,45 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.landing-page {
+    background-image: url('./images/landscape.png');
+    background-size: contain;
+    height: 100vh;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.background {
+    background-color: #D9415D;
+}
+
+.color {
+    color: whitesmoke !important;
+}
+
+.logo {
+    color: whitesmoke !important;
+    text-shadow: 2px 0 black;
+}
+
+.button-color {
+    color: #4B8BA3 !important;
+}
+
+.color:hover {
+    color: black !important;
+}
+
+.landing-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.carousel-item img {
+    height: 100%; 
+    object-fit: contain; 
+}

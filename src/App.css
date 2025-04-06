@@ -1,0 +1,57 @@
+* {
+    margin-bottom: 0;
+}
+
+.user-card {
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border 0.3s ease-in-out, transform 0.2s;
+}
+
+.user-card:hover {
+  border: 2px solid black !important;
+  transform: scale(1.05);
+}
+
+.user-card.selected {
+  border: 2.5px solid black;
+}
+
+/* Glassmorphism card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  color: #fff;
+  padding: 1.5rem;
+}
+
+/* Main background */
+.faculty-dashboard-bg {
+  background-color: #4B8BA3;
+  min-height: 100vh;
+  padding: 3rem;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.event-card-pink {
+  background: rgba(217, 65, 93, 0.5); /* Light pink glass look */
+  border: 1px solid rgba(217, 65, 93, 0.4); 
+  border-radius: 15px;
+  backdrop-filter: blur(12px);
+  color: white;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 0 10px rgba(217, 65, 93, 0.3);
+}
+
+.scrollable-events::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollable-events::-webkit-scrollbar-thumb {
+  background-color: black;
+  border-radius: 10px;
+}
