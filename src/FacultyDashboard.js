@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-import { FaCalendarPlus, FaCalendarAlt, FaEdit, FaTrash } from "react-icons/fa";
+import {
+  FaCalendarPlus,
+  FaCalendarAlt,
+  FaEdit,
+  FaTrash,
+  FaMoneyBill,
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "./App.css";
 
@@ -17,6 +23,12 @@ function FacultyDashboard() {
   const [showAll, setShowAll] = useState(false);
   const [maxHeadCount, setMaxHeadCount] = useState("");
   const navigate = useNavigate();
+
+  // Budget Tracker state
+  const [itemName, setItemName] = useState("");
+  const [itemCost, setItemCost] = useState("");
+  const [budgetItems, setBudgetItems] = useState([]);
+  const [totalCost, setTotalCost] = useState(0);
 
   const location = useLocation();
   const username = location.state?.username;
@@ -120,6 +132,29 @@ function FacultyDashboard() {
     setMaxHeadCount("");
   };
 
+  // Budget Tracker handlers
+  const handleItemNameChange = (e) => setItemName(e.target.value);
+  const handleItemCostChange = (e) => setItemCost(e.target.value);
+
+  const handleAddItem = () => {
+    if (!itemName || !itemCost) return;
+    const newItem = {
+      name: itemName,
+      cost: parseFloat(itemCost),
+    };
+    setBudgetItems([...budgetItems, newItem]);
+    setTotalCost(totalCost + newItem.cost);
+    setItemName("");
+    setItemCost("");
+  };
+
+  const handleDeleteItem = (index) => {
+    const newItems = budgetItems.filter((_, i) => i !== index);
+    setBudgetItems(newItems);
+    const newTotalCost = newItems.reduce((sum, item) => sum + item.cost, 0);
+    setTotalCost(newTotalCost);
+  };
+
   return (
     <div className="faculty-dashboard-bg">
       <h2 className="text-center mb-5 fw-bold text-white display-5">
@@ -144,6 +179,7 @@ function FacultyDashboard() {
               {editingEvent ? "Edit Event" : "Create New Event"}
             </h5>
             <form onSubmit={handleSubmit}>
+              {/* Form Fields (same as before) */}
               <div className="mb-3">
                 <label className="form-label text-white">Event Name</label>
                 <input
@@ -271,7 +307,7 @@ function FacultyDashboard() {
                   style={{
                     maxHeight: "300px",
                     overflowY: "auto",
-                    widht: "100%",
+                    width: "100%",
                   }}
                 >
                   {(showAll ? events : events.slice(0, 3)).map((event) => (
@@ -309,6 +345,9 @@ function FacultyDashboard() {
                             className="btn btn-sm btn-light"
                             onClick={() => handleEdit(event)}
                             title="Edit"
+                            style={{
+                              borderRadius: "10px",
+                            }}
                           >
                             <FaEdit style={{ color: "#D9415D" }} />
                           </button>
@@ -316,6 +355,13 @@ function FacultyDashboard() {
                             className="btn btn-sm btn-danger"
                             onClick={() => handleDelete(event.id)}
                             title="Delete"
+                            style={{
+                              backgroundColor: "#D9415D",
+                              color: "white",
+                              width: "100%",
+                              fontWeight: "bold",
+                              borderRadius: "10px",
+                            }}
                           >
                             <FaTrash />
                           </button>
@@ -342,6 +388,95 @@ function FacultyDashboard() {
                 )}
               </>
             )}
+          </div>
+
+          {/* Add a margin here for gap */}
+          <div className="mt-4"></div>
+
+          {/* Budget Tracker Widget */}
+          <div className="glass-card p-4">
+            <h5 className="mb-3 text-white">
+              <FaMoneyBill className="me-2" />
+              Budget Tracker
+            </h5>
+
+            <div style={{ flex: 1 }} className="mb-2"></div>
+
+            <div className="d-flex gap-3 mb-3">
+              <div style={{ flex: 1 }}>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Item Name"
+                  value={itemName}
+                  onChange={handleItemNameChange}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="Item Cost"
+                  value={itemCost}
+                  onChange={handleItemCostChange}
+                />
+              </div>
+              <button
+                className="btn btn-sm"
+                onClick={handleAddItem}
+                style={{
+                  backgroundColor: "#D9415D",
+                  color: "white",
+                  fontWeight: "bold",
+                  borderRadius: "10px",
+                }}
+              >
+                Add Item
+              </button>
+            </div>
+
+            <div className="mt-3">
+              <h6 className="text-white mb-3" style={{ fontWeight: "bold" }}>
+                Budget Items:
+              </h6>
+
+              <div className="d-flex flex-column gap-2">
+                {budgetItems.map((item, index) => (
+                  <div
+                    key={index}
+                    className="d-flex justify-content-between align-items-center p-2 rounded"
+                    style={{
+                      backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      color: "white",
+                      border: "1px solid rgba(255,255,255,0.15)",
+                    }}
+                  >
+                    <div style={{ fontWeight: "500" }}>
+                      <span>{item.name}</span>
+                      <span className="ms-2">₹{item.cost.toFixed(2)}</span>
+                    </div>
+                    <button
+                      className="btn btn-sm"
+                      onClick={() => handleDeleteItem(index)}
+                      style={{
+                        backgroundColor: "#D9415D",
+                        color: "white",
+                        fontWeight: "bold",
+                        borderRadius: "10px",
+                      }}
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-4 d-flex justify-content-end">
+              <h6 className="text-white mb-0" style={{ fontWeight: "bold" }}>
+                Total: ₹{totalCost.toFixed(2)}
+              </h6>
+            </div>
           </div>
         </div>
       </div>

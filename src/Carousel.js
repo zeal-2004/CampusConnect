@@ -1,4 +1,6 @@
-import temp from "./images/carousel_temp.png";
+import faculty from "./images/faculty.png";
+import student from "./images/studentcar.png";
+import admin from "./images/facultycar.png";
 import "./Landing.css";
 import { useNavigate } from "react-router-dom";
 
@@ -31,8 +33,15 @@ function Carousel() {
         </div>
         <div class="carousel-inner">
           <div class="carousel-item active">
-            <img src={temp} alt="Faculty" />
-            <div class="carousel-caption d-none d-md-block">
+            <img src={faculty} style={{ width: "800px" }} alt="Faculty" />
+            <div
+              class="carousel-caption d-none d-md-block"
+              style={{
+                backgroundColor: "black",
+                borderRadius: "25px",
+                transform: "scale(0.7)",
+              }}
+            >
               <h5>Create / Edit Events as a Faculty</h5>
               <p>
                 Faculty members can effortlessly create and edit events with
@@ -41,8 +50,15 @@ function Carousel() {
             </div>
           </div>
           <div class="carousel-item">
-            <img src={temp} alt="Student" />
-            <div class="carousel-caption d-none d-md-block">
+            <img src={student} style={{ width: "800px" }} alt="Student" />
+            <div
+              class="carousel-caption d-none d-md-block"
+              style={{
+                backgroundColor: "black",
+                borderRadius: "25px",
+                transform: "scale(0.7)",
+              }}
+            >
               <h5>RSVP to Events as a Student</h5>
               <p>
                 Students can easily RSVP to events with a single click, securing
@@ -51,8 +67,15 @@ function Carousel() {
             </div>
           </div>
           <div class="carousel-item">
-            <img src={temp} alt="Admin" />
-            <div class="carousel-caption d-none d-md-block">
+            <img src={admin} style={{ width: "1000px" }} alt="Admin" />
+            <div
+              class="carousel-caption d-none d-md-block"
+              style={{
+                backgroundColor: "black",
+                borderRadius: "25px",
+                transform: "scale(0.7)",
+              }}
+            >
               <h5>Oversee Event reports as an Admin </h5>
               <p>
                 Admins have full access to event reports, allowing them to track

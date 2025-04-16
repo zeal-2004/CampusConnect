@@ -313,6 +313,78 @@ app.put("/events/:id", async (req, res) => {
   }
 });
 
+app.get("/admin/events", (req, res) => {
+  const query = `
+    SELECT 
+      e.name, 
+      e.venue, 
+      e.created_by, 
+      e.max_headcount, 
+      e.event_date, 
+      COUNT(r.id) AS registrations
+    FROM events e
+    LEFT JOIN registrations r ON e.id = r.event_id
+    GROUP BY e.id
+  `;
+
+  // Run the query with the callback approach
+  db.query(query, (err, rows) => {
+    if (err) {
+      console.error("Error fetching admin events:", err);
+      return res.status(500).json({ message: "Internal server error." });
+    }
+
+    // Send the results as JSON
+    res.status(200).json(rows);
+  });
+});
+
+app.put("/admin/events", (req, res) => {
+  const { name, venue, event_date, max_headcount } = req.body;
+
+  // First, fetch the event ID based on the event name
+  const getEventIdQuery = "SELECT id FROM events WHERE name = ? LIMIT 1";
+
+  db.query(getEventIdQuery, [name], (err, result) => {
+    if (err) {
+      console.error("Error fetching event ID:", err);
+      return res.status(500).json({ message: "Failed to fetch event ID." });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({ message: "Event not found." });
+    }
+
+    const eventId = result[0].id; // Get the ID of the event
+
+    // Now, proceed with the update query using the event ID
+    const updateEventQuery = `
+      UPDATE events
+      SET name = ?, venue = ?, event_date = ?, max_headcount = ?
+      WHERE id = ?
+    `;
+
+    db.query(
+      updateEventQuery,
+      [name, venue, event_date, max_headcount, eventId],
+      (err, result) => {
+        if (err) {
+          console.error("Error updating event:", err);
+          return res.status(500).json({ message: "Failed to update event." });
+        }
+
+        if (result.affectedRows === 0) {
+          return res
+            .status(404)
+            .json({ message: "Event not found to update." });
+        }
+
+        res.status(200).json({ message: "Event updated successfully" });
+      }
+    );
+  });
+});
+
 // Start Server
 const PORT = 5020;
 app.listen(PORT, () =>

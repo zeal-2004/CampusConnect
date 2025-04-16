@@ -58,12 +58,6 @@
   box-shadow: 0 0 10px rgba(217, 65, 93, 0.3);
 }
 
-.student-pink:hover {
-  transform: translateY(-5px) scale(1.02);
-  box-shadow: 0 6px 10px rgba(217, 65, 93, 0.5); 
-  backdrop-filter: blur(16px);
-}
-
 .scrollable-events::-webkit-scrollbar {
   width: 6px;
 }
@@ -77,12 +71,36 @@
   transition: transform 0.3s ease;
 }
 
-.student-event:hover {
-  transform: translateY(-4px);
-}
-
 .glass-card hr {
   border: none;
   border-top: 1px solid white;
   margin: 0.5rem 0;
+}
+
+/* Dashboard Title */
+.dashboard-title {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: white;
+}
+
+/* Elegant Table */
+.event-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  color: white;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.event-table th,
+.event-table td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.event-table thead {
+  background-color: rgba(255, 255, 255, 0.15);
 }
